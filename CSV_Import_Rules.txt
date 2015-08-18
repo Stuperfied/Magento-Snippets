@@ -1,0 +1,55 @@
+[Importing New Images]
+
+Only .jpg images may be imported.
+The Small_Image field relates to the main image.
+Small_Image always imports second.
+Names should be lower case.
+Image URL's requre a leading '/'.
+New Values specified must have a corresponding file in /media/import.
+Import will duplicate images if re-used.
+
+[Including existing images in the .csv]
+Existing Values export with their path. This path may be included when importing.
+Existing Values specified in the .csv will be ignored.
+Path is required for existing values as products with null field values are skipped.
+
+
+[Notes]
+A script has been added to allow the use of a "gallery" field. Images
+added using this field should be seperated by a semicolon and located in
+the media/import folder.
+
+To avoid file not found errors, after importing, values should be 
+removed from the "gallery" field.
+
+To add labels for gallery images, once uploaded they may be removed
+from the gallery field and cycled through "small_image", "image" and "thumbnail".
+
+Fields include in an import must have a value or will be written blank. There
+are a few exceptions such as in the case of images.
+
+[Required Fields]
+[Update Existing Products]
+sku
+
+[Import New Products]
+name
+sku
+type
+price
+status
+qty
+is_recurring
+visibility
+tax_class_id
+attribute_set
+websites
+store
+has_options
+meta_title
+meta_description
+page_layout
+store_id
+image
+small_image
+thumbnail
