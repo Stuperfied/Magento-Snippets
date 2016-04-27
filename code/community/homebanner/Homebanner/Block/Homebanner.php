@@ -1,6 +1,6 @@
 <?php
 
-class MWT_Homebanner_Block_Homebanner extends Mage_Core_Block_Template
+class homebanner_Homebanner_Block_Homebanner extends Mage_Core_Block_Template
 
 {
 
