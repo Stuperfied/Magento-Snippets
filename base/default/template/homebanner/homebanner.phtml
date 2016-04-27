@@ -1,0 +1,138 @@
+<!--
+This code is used to display selected categories on the home page and
+is called in module block homebanner which is inserted into 
+the cms page home. This page uses the homebanner/homebanner block type as
+set in its module.
+Changed getModel to getSingleton.
+-->
+
+
+<?php 
+$instance=$this;
+$parentCategoryId = 2;
+$cat = Mage::getSingleton('catalog/category')->load($parentCategoryId);
+
+$cache=array();
+$extras=array();
+
+class Assem {
+    public $cacheData=array();
+    public $extrasData=array();
+}
+
+function get_data($_cat) {
+    $data = new Assem();
+    return iterate($_cat, $data);
+}
+
+function iterate($_cat, $data) {
+    if($subCats = $_cat->getChildren()) {
+        foreach(explode(',',$subCats) as $subCatId) {
+            $_category = Mage::getSingleton('catalog/category')->load($subCatId);
+	    if($_category->getIsActive()) {
+	        $data = action($_category, $data);  // getting loopy here!
+	    }
+        }
+    }
+    return $data;
+}
+
+function action($_category, $data) {
+    $data = get_cat($_category, $data);
+    return iterate($_category, $data);  // loop the loop!
+}
+
+
+function get_cat($_category, $data) {
+    
+    $sortkey=0;
+    $newData="";
+	
+    if ($_category->getCatalogCategory() == "1") {
+        $newData=assemble_html($_category);
+        if ($sortkey=$_category->getHbSort()) { 
+            $data->cacheData[$sortkey]=$newData;
+        } else {
+            $data->extrasData[]=$newData;
+        }
+    }
+	
+    return $data;
+}
+  
+
+function assemble_html($_category) {
+    $mediaUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA);
+    $htmldata='<a href="'.$_category->getURL().'" id="customid"><script type="text/javascript">swapid();</script><span class="banner-image"><img class="banner-image" src="'.$mediaUrl."catalog".DS."category".DS.$_category->getThumbnail().'" alt="'.$_category->getName().'" /><span class="css3bannergradient" /></span></span><span class="banner-title">'.$_category->getName().'</span></a>';
+    
+    return $htmldata;
+}
+
+
+
+echo '
+<script type="text/javascript">
+<!--
+  var styleid="";
+  var removePad="";
+  var endRemovePad="";
+if (navigator.userAgent.search("MSIE") >= 0){
+    styleid="ieresize";
+    removePad="<div class=\'clipping\'>";
+    endRemovePad = "</div>";
+} else if (navigator.userAgent.search("Chrome") >= 0){
+    styleid="gcresize";
+} else if (navigator.userAgent.search("Firefox") >= 0){
+    styleid="";
+} else if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chrome") < 0) {//<< Here
+    styleid="";
+} else if (navigator.userAgent.search("Opera") >= 0) {
+    styleid="";
+} else {
+    styleid="";
+}
+
+// Adjust styles to suit browser.
+function swapid() {
+  document.getElementById("customid").id = styleid;
+}
+//-->
+</script>';
+
+
+// if IE insert opening divide used with css to remove left padding.
+echo '<script type="text/javascript">
+<!-- 
+document.write(removePad);
+//-->
+</script>';
+echo '<div class="home-banners">';
+
+
+$data = get_data($cat);
+$cache = $data->cacheData;
+$extras = $data->extrasData;
+
+
+ksort($cache);
+foreach ($cache as $key => $value) {
+    echo $value;
+}
+
+ksort($extras);
+foreach ($extras as $key => $value) {
+    echo $value;
+}
+
+echo '<div style="clear:left;"></div>';
+
+// if IE insert closing divide to remover left padding.
+echo '</div>';
+echo '<script type="text/Javascript">
+<!--// 
+document.write(endRemovePad);
+//-->
+</script>';
+
+
+?>
